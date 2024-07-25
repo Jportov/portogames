@@ -1,28 +1,44 @@
+import React, { useEffect, useState } from 'react'
+import { Game } from '../../pages/Home'
 import { Imagem, Titulo, Precos } from './styles'
-import bannerImg from '../../assets/images/banner-homem-aranha.png'
+import { formataPreco } from '../ProductList'
 import Tag from '../Tag'
 import Button from '../Button'
 
-const Banner = () => (
-  <Imagem style={{ backgroundImage: `url(${bannerImg})` }}>
-    <div className="container">
-      <Tag size="big">Destaque do Dia</Tag>
-      <div>
-        <Titulo>Marvel&lsquo;s Spider-Man: Miles Morales PS4 & PS5</Titulo>
-        <Precos>
-          De <span>R$ 250,00</span> <br />
-          Por apenas R$ 99,90
-        </Precos>
+const Banner = () => {
+  const [game, setGame] = useState<Game | undefined>()
+
+  useEffect(() => {
+    fetch('https://fake-api-tau.vercel.app/api/eplay/destaque')
+      .then((res) => res.json())
+      .then((res) => setGame(res))
+      .catch((error) => console.error('Erro ao carregar jogo:', error))
+  }, [])
+
+  if (!game) return <h3>Carregando...</h3>
+
+  return (
+    <Imagem style={{ backgroundImage: `url(${game.media.cover})` }}>
+      <div className="container">
+        <Tag size="big">Destaque do Dia</Tag>
+        <div>
+          <Titulo>{game.name}</Titulo>
+          <Precos>
+            De <span>{formataPreco(game.prices.old)}</span>
+            <br />
+            Por apenas {formataPreco(game.prices.current)}
+          </Precos>
+        </div>
+        <Button
+          type="link"
+          to="/produto"
+          title="Clique aqui para aproveitar esta promoção"
+        >
+          Aproveitar
+        </Button>
       </div>
-      <Button
-        type="link"
-        to="/produto"
-        title="Clique aqui para aproveitar esta promoção"
-      >
-        Aproveitar
-      </Button>
-    </div>
-  </Imagem>
-)
+    </Imagem>
+  )
+}
 
 export default Banner
